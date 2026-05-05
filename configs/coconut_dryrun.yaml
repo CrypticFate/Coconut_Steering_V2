@@ -36,8 +36,8 @@ phase1b:
   num_epochs: 13
   resume: 3
   batch_size_training: 1
-  gradient_accumulation_steps: 32
-  lr: 1.0e-4
+  gradient_accumulation_steps: 64
+  lr: 2.0e-5
   weight_decay: 0.0
   reset_optimizer: true
   save_only_improve: true

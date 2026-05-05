@@ -16,7 +16,9 @@ LATENT_TOKENS = ["<|start-latent|>", "<|latent|>", "<|end-latent|>"]
 def _pick_dtype() -> torch.dtype:
     if torch.cuda.is_available() and torch.cuda.is_bf16_supported():
         return torch.bfloat16
-    return torch.float16 if torch.cuda.is_available() else torch.float32
+    # FP16 can be numerically unstable for full-model Coconut training.
+    # Prefer FP32 when BF16 is unavailable.
+    return torch.float32
 
 
 def build_base_lm(

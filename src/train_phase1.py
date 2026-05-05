@@ -267,6 +267,21 @@ def run_coconut(cfg, log_path=None):
             for step, batch in enumerate(pbar):
                 batch = {k: v.to(_dev()) if torch.is_tensor(v) else v for k, v in batch.items()}
                 step_loss = model(**batch).loss
+                if not torch.isfinite(step_loss):
+                    optimizer.zero_grad(set_to_none=True)
+                    _append_log(
+                        log_path,
+                        {
+                            "phase": "phase1b_coconut",
+                            "stage": stage,
+                            "epoch": epoch,
+                            "step": step,
+                            "event": "non_finite_loss_skipped",
+                            "loss": str(step_loss.detach().item()),
+                        },
+                    )
+                    pbar.set_postfix({"loss": "nan-skip"})
+                    continue
                 loss = step_loss / cfg["gradient_accumulation_steps"]
                 loss.backward()
                 running_loss += step_loss.detach().item()
