@@ -1,0 +1,71 @@
+project: ccot-steering
+name: coconut_local_tiny
+seed: 42
+model_id: sshleifer/tiny-gpt2
+
+paths:
+  split_dir: data/splits
+  train_path: data/splits/train.json
+  train_internal_val_path: data/splits/train_internal_val.json
+  steer_path: data/splits/steer.json
+  val_path: data/splits/val.json
+  test_path: data/splits/test.json
+  cot_ckpt_meta: outputs/checkpoints/cot_dryrun/best_val_acc.json
+  coconut_ckpt_meta: outputs/checkpoints/coconut_dryrun/best_val_acc.json
+  vectors_dir: outputs/vectors
+  alpha_dir: outputs/alpha
+  results_dir: outputs/results
+  logs_dir: outputs/logs
+
+curriculum:
+  c_thought: 2
+  epochs_per_stage: 3
+  max_latent_stage: 3
+  pad_latent_to_max: true
+  uniform_prob: 0.0
+
+memory:
+  gradient_checkpointing: true
+
+phase1a:
+  num_epochs: 3
+  batch_size_training: 1
+  gradient_accumulation_steps: 8
+  lr: 1.0e-4
+  weight_decay: 0.0
+  save_only_improve: true
+
+phase1b:
+  num_epochs: 6
+  resume: 3
+  batch_size_training: 1
+  gradient_accumulation_steps: 8
+  lr: 1.0e-4
+  weight_decay: 0.0
+  reset_optimizer: true
+  save_only_improve: true
+  stage_plan:
+    - stage: 1
+      epochs: 2
+    - stage: 2
+      epochs: 2
+    - stage: 3
+      epochs: 2
+
+phase2:
+  N_samples_per_question: 4
+  temperature: 0.7
+  max_new_tokens: 32
+  min_examples_per_class: 20
+
+phase3:
+  alpha_max: 20.0
+  gamma: 0.95
+  lambda_m: 0.1
+  lr: 1.0e-2
+  max_steps: 100
+  patience: 10
+
+phase4:
+  max_new_tokens: 64
+  random_seed: 42

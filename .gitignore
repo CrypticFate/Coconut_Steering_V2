@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environments
+.venv/
+venv/
+env/
+.env
+.env.*
+*.env
+
+# Conda
+.conda/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+*.log
+logs/
+outputs/logs/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Data and model artifacts
+outputs/checkpoints/
+outputs/vectors/
+outputs/alpha/
+outputs/results/
+
+# Downloaded external repos / datasets
+external/coconut/
+data/coconut_format/
+data/splits/

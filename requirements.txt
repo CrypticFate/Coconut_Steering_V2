@@ -1,0 +1,11 @@
+torch>=2.3.0
+transformers>=4.43.0
+datasets
+numpy
+wandb
+tqdm
+accelerate==0.32.1
+scikit-learn==1.5.1
+pyyaml==6.0.1
+bitsandbytes==0.43.1
+safetensors>=0.4.3

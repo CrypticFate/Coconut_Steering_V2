@@ -1,0 +1,29 @@
+project: ccot-steering
+name: cot_dryrun
+save_path: outputs/checkpoints
+
+model_id: Qwen/Qwen2.5-0.5B
+seed: 42
+
+train_path: data/splits/train.json
+val_path: data/splits/train_internal_val.json
+
+cot: true
+coconut: false
+no_thoughts: false
+no_cot: false
+
+num_epochs: 6
+batch_size_training: 1
+gradient_accumulation_steps: 32
+lr: 1.0e-4
+weight_decay: 0.0
+bf16: true
+reset_optimizer: false
+save_only_improve: true
+
+c_thought: 2
+epochs_per_stage: 3
+max_latent_stage: 3
+pad_latent_to_max: true
+uniform_prob: 0.0
