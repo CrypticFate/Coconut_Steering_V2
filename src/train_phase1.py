@@ -72,7 +72,13 @@ def evaluate_exact_match(model, tokenizer, val_rows, max_new_tokens=200):
         prompt = ex["question"] + "\nLet's think step by step.\n### "
         toks = tokenizer(prompt, return_tensors="pt").to(_dev())
         with torch.no_grad():
-            out = model.generate(**toks, max_new_tokens=max_new_tokens, do_sample=False)
+            out = model.generate(
+                **toks,
+                max_new_tokens=max_new_tokens,
+                do_sample=False,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+            )
         pred = tokenizer.decode(out[0], skip_special_tokens=True)
         pred = _extract_final_answer(pred)
         gold = _extract_final_answer(ex["answer"])
@@ -93,6 +99,8 @@ def evaluate_coconut_exact_match(model, tokenizer, val_dataset, cfg):
                 attention_mask=attention_mask,
                 max_new_tokens=64,
                 synced_gpus=False,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
             )
         pred = _extract_final_answer(tokenizer.decode(out_ids[0], skip_special_tokens=True))
         gold = _extract_final_answer(item["answer"])

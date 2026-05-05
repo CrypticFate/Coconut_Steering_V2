@@ -35,7 +35,13 @@ def _acc_text_model(model, tokenizer, rows, prompt_style, max_new_tokens):
             prompt = f"{ex['question']}\nLet's think step by step.\n### "
         toks = tokenizer(prompt, return_tensors="pt").to(_dev())
         with torch.no_grad():
-            out = model.generate(**toks, max_new_tokens=max_new_tokens, do_sample=False)
+            out = model.generate(
+                **toks,
+                max_new_tokens=max_new_tokens,
+                do_sample=False,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+            )
         pred = extract_answer_after_marker(tokenizer.decode(out[0], skip_special_tokens=True))
         ok += int(normalize_answer(pred) == normalize_answer(ex["answer"]))
     return ok / max(1, len(rows))
@@ -51,6 +57,8 @@ def _acc_coconut(model, tokenizer, q_ds, max_new_tokens):
                 attention_mask=item["attention_mask"].unsqueeze(0).to(_dev()),
                 max_new_tokens=max_new_tokens,
                 synced_gpus=False,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
             )
         pred = extract_answer_after_marker(tokenizer.decode(out[0], skip_special_tokens=True))
         ok += int(normalize_answer(pred) == normalize_answer(item["answer"]))

@@ -34,6 +34,8 @@ def _eval_acc(model, tokenizer, q_ds, max_new_tokens):
                 attention_mask=item["attention_mask"].unsqueeze(0).to(_dev()),
                 max_new_tokens=max_new_tokens,
                 synced_gpus=False,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
             )
         pred = extract_answer_after_marker(tokenizer.decode(out[0], skip_special_tokens=True))
         ok += int(normalize_answer(pred) == normalize_answer(item["answer"]))

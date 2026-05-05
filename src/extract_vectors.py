@@ -75,6 +75,8 @@ def run(cfg):
                     do_sample=True,
                     temperature=cfg["phase2"]["temperature"],
                     synced_gpus=False,
+                    pad_token_id=tokenizer.pad_token_id,
+                    eos_token_id=tokenizer.eos_token_id,
                 )
                 decoded = tokenizer.decode(out[0], skip_special_tokens=False)
                 pred = extract_answer_after_marker(decoded, marker="### ")

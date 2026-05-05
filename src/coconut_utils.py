@@ -28,6 +28,13 @@ def build_base_lm(
     tokenizer = AutoTokenizer.from_pretrained(model_source, trust_remote_code=True)
     if add_latent_tokens:
         tokenizer.add_tokens(LATENT_TOKENS)
+    if tokenizer.eos_token_id is None:
+        # Robust fallback for models/tokenizers with unset EOS in config.
+        for tok in ["<|endoftext|>", "</s>", "<|im_end|>"]:
+            tid = tokenizer.convert_tokens_to_ids(tok)
+            if tid is not None and tid != tokenizer.unk_token_id:
+                tokenizer.eos_token = tok
+                break
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -67,6 +74,17 @@ def build_base_lm(
                 model.get_input_embeddings().weight[tid] = init_embed.clone()
                 if model.get_output_embeddings() is not None:
                     model.get_output_embeddings().weight[tid] = init_embed.clone()
+
+    # Keep tokenizer/model generation settings synchronized to avoid
+    # "pad_token_id ... None" warnings during generate().
+    if tokenizer.eos_token_id is not None:
+        model.config.eos_token_id = tokenizer.eos_token_id
+        if getattr(model, "generation_config", None) is not None:
+            model.generation_config.eos_token_id = tokenizer.eos_token_id
+    if tokenizer.pad_token_id is not None:
+        model.config.pad_token_id = tokenizer.pad_token_id
+        if getattr(model, "generation_config", None) is not None:
+            model.generation_config.pad_token_id = tokenizer.pad_token_id
 
     return model, tokenizer
 
