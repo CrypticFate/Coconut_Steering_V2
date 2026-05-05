@@ -31,13 +31,27 @@ def build_base_lm(
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    model = AutoModelForCausalLM.from_pretrained(
-        model_source,
-        dtype=_pick_dtype(),
-        attn_implementation="sdpa",
-        device_map="auto" if torch.cuda.is_available() else None,
-        trust_remote_code=True,
-    )
+    common_kwargs = {
+        "attn_implementation": "sdpa",
+        "device_map": "auto" if torch.cuda.is_available() else None,
+        "trust_remote_code": True,
+    }
+    # Compatibility across transformers versions:
+    # newer accepts `dtype`, while many stable releases expect `torch_dtype`.
+    try:
+        model = AutoModelForCausalLM.from_pretrained(
+            model_source,
+            dtype=_pick_dtype(),
+            **common_kwargs,
+        )
+    except TypeError as e:
+        if "unexpected keyword argument 'dtype'" not in str(e):
+            raise
+        model = AutoModelForCausalLM.from_pretrained(
+            model_source,
+            torch_dtype=_pick_dtype(),
+            **common_kwargs,
+        )
 
     if add_latent_tokens:
         model.resize_token_embeddings(len(tokenizer))
